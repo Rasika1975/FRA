@@ -1,124 +1,146 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, MapPin, Filter, BarChart3, Settings, Download } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  BarChart3,
+  Info,
+  User,
+  Menu,
+  X,
+} from "lucide-react";
+import { useAuth } from "/src/hooks/useAuth.js";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const location = useLocation();
+  const { user, logout } = useAuth();
 
-  const menuItems = [
-    { icon: MapPin, label: 'Map Layers', active: true },
-    { icon: Filter, label: 'Filters', active: false },
-    { icon: BarChart3, label: 'Analytics', active: false },
-    { icon: Settings, label: 'Settings', active: false },
-    { icon: Download, label: 'Export', active: false },
+  const navItems = [
+    { name: "Dashboard", path: "/", icon: BarChart3 },
+    { name: "FRA Atlas", path: "/map", icon: MapPin },
+    { name: "About", path: "/about", icon: Info },
   ];
 
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <div
-      className={`bg-white border-r border-gray-200 transition-all duration-300 shadow-lg ${
-        isCollapsed ? 'w-16' : 'w-80'
-      }`}
-    >
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-        {!isCollapsed && <h2 className="font-semibold text-gray-900 text-lg">Map Controls</h2>}
+    <>
+      {/* Mobile Menu Button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 shadow-sm"
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          className="bg-white/80 backdrop-blur-md text-gray-700 hover:text-emerald-600 p-2 rounded-lg shadow-md transition-all duration-300"
         >
-          {isCollapsed ? <ChevronRight className="w-5 h-5 text-gray-600" /> : <ChevronLeft className="w-5 h-5 text-gray-600" />}
+          {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
-      {/* Navigation */}
-      <div className="p-2 space-y-1">
-        {menuItems.map((item, index) => {
-          const Icon = item.icon;
-          return (
-            <button
-              key={index}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-all duration-200 shadow-sm ${
-                item.active
-                  ? 'bg-emerald-50 text-emerald-700 shadow-md'
-                  : 'text-gray-600 hover:bg-emerald-50 hover:text-emerald-700'
-              }`}
-            >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {!isCollapsed && <span>{item.label}</span>}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Content Area */}
-      {!isCollapsed && (
-        <div className="p-4 space-y-6 overflow-y-auto max-h-screen">
-          {/* Quick Stats */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick Stats</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm text-gray-700">
-                <span>Total Claims</span>
-                <span className="font-medium">24,567</span>
-              </div>
-              <div className="flex justify-between text-sm text-gray-700">
-                <span>Approved</span>
-                <span className="font-medium text-green-600">18,423</span>
-              </div>
-              <div className="flex justify-between text-sm text-gray-700">
-                <span>Pending</span>
-                <span className="font-medium text-orange-600">4,321</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Layer Controls */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Map Layers</h3>
-            <div className="space-y-2">
-              {[
-                { name: 'FRA Claims', enabled: true },
-                { name: 'Forest Cover', enabled: true },
-                { name: 'Water Bodies', enabled: false },
-                { name: 'Settlements', enabled: false },
-                { name: 'Administrative', enabled: true },
-              ].map((layer, index) => (
-                <label
-                  key={index}
-                  className="flex items-center space-x-2 cursor-pointer hover:bg-emerald-50 p-2 rounded-md transition-all duration-200"
-                >
-                  <input
-                    type="checkbox"
-                    defaultChecked={layer.enabled}
-                    className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
-                  />
-                  <span className="text-sm text-gray-700">{layer.name}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Filters */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick Filters</h3>
-            <div className="space-y-2">
-              <select className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
-                <option>All States</option>
-                <option>Madhya Pradesh</option>
-                <option>Tripura</option>
-                <option>Odisha</option>
-                <option>Telangana</option>
-              </select>
-              <select className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
-                <option>All Status</option>
-                <option>Approved</option>
-                <option>Pending</option>
-                <option>Rejected</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+          onClick={() => setIsMobileOpen(false)}
+        />
       )}
-    </div>
+
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full z-50 border-r border-gray-200 shadow-lg bg-white/90 backdrop-blur-md transition-all duration-300 flex flex-col
+        ${isCollapsed ? "w-16" : "w-64"} 
+        ${isMobileOpen ? "translate-x-0" : "lg:translate-x-0 -translate-x-full"}`}
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+          {!isCollapsed ? (
+            <Link to="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md hover:scale-110 transition-transform duration-300">
+                <MapPin className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg text-gray-900">FRA Atlas</span>
+                <span className="text-xs text-gray-500">
+                  Forest Rights Monitoring
+                </span>
+              </div>
+            </Link>
+          ) : (
+            <Link
+              to="/"
+              className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md hover:scale-110 transition-transform duration-300"
+            >
+              <MapPin className="w-6 h-6 text-white" />
+            </Link>
+          )}
+
+          {/* Collapse Button */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="hidden lg:flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg transition-all duration-200"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            ) : (
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            )}
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex-1 p-2 space-y-1 overflow-y-auto no-scrollbar">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                onClick={() => setIsMobileOpen(false)}
+                className={`relative w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-all duration-300
+                  ${
+                    isActive(item.path)
+                      ? "bg-emerald-50 text-emerald-700 shadow-md"
+                      : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
+                  }`}
+              >
+                {/* Active border indicator */}
+                {isActive(item.path) && (
+                  <span className="absolute left-0 top-0 h-full w-1 bg-emerald-600 rounded-r-md"></span>
+                )}
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                {!isCollapsed && <span>{item.name}</span>}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* User Section */}
+        <div className="p-4 border-t border-gray-200 bg-white/90 backdrop-blur-md">
+          {user ? (
+            <div className="space-y-3">
+              {!isCollapsed && (
+                <div className="px-2 text-sm text-gray-700">
+                  👋 Hello, <span className="font-semibold">{user.name}</span>
+                </div>
+              )}
+              <button
+                onClick={() => {
+                  logout();
+                  setIsMobileOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-gray-50 rounded-lg transition-all duration-300 ${
+                  isCollapsed ? "justify-center" : ""
+                }`}
+              >
+                <User className="w-5 h-5" />
+                {!isCollapsed && <span>Logout</span>}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </>
   );
 };
 

@@ -1,10 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 
-import HomePage from './pages/Homepage';
 import DashboardPage from './pages/DashboardPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ForestOfficerDashboard from './pages/ForestOfficerDashboard';
@@ -14,6 +13,7 @@ import PublicDashboard from './pages/PublicDashboard';
 import MapPage from './pages/MapPage';
 import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
+import Navbar from './components/Navbar';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -28,21 +28,11 @@ function App() {
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/map" element={<MapPage />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/login" element={<LoginPage />} />
 
-              {/* About Page with Footer */}
-              <Route
-                path="/about"
-                element={
-                  <>
-                    <AboutPage />
-                    <Footer />
-                  </>
-                }
-              />
-
-              {/* General Dashboard */}
-              <Route path="/dashboard" element={<DashboardPage />} />
+                {/* General Dashboard */}
+                <Route path="/dashboard" element={<DashboardPage />} />
 
               {/* Role-Based Protected Routes */}
               <Route
@@ -87,6 +77,7 @@ function App() {
               />
             </Routes>
           </main>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>
