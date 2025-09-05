@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   ChevronLeft,
@@ -11,10 +11,10 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "/src/hooks/useAuth.js";
+import { useSidebar } from "/src/context/SidebarContext.jsx";
 
 const Sidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { isCollapsed, isMobileOpen, toggleCollapse, toggleMobile, closeMobile } = useSidebar();
   const location = useLocation();
   const { user, logout } = useAuth();
 
@@ -31,7 +31,7 @@ const Sidebar = () => {
       {/* Mobile Menu Button */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          onClick={toggleMobile}
           className="bg-white/80 backdrop-blur-md text-gray-700 hover:text-emerald-600 p-2 rounded-lg shadow-md transition-all duration-300"
         >
           {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -42,7 +42,7 @@ const Sidebar = () => {
       {isMobileOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
-          onClick={() => setIsMobileOpen(false)}
+          onClick={closeMobile}
         />
       )}
 
@@ -77,7 +77,7 @@ const Sidebar = () => {
 
           {/* Collapse Button */}
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={toggleCollapse}
             className="hidden lg:flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg transition-all duration-200"
           >
             {isCollapsed ? (
@@ -96,7 +96,7 @@ const Sidebar = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                onClick={() => setIsMobileOpen(false)}
+                onClick={closeMobile}
                 className={`relative w-full flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-all duration-300
                   ${
                     isActive(item.path)
@@ -127,7 +127,7 @@ const Sidebar = () => {
               <button
                 onClick={() => {
                   logout();
-                  setIsMobileOpen(false);
+                  closeMobile();
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-gray-50 rounded-lg transition-all duration-300 ${
                   isCollapsed ? "justify-center" : ""
