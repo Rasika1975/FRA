@@ -28,8 +28,18 @@ function App() {
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/map" element={<MapPage />} />
-              <Route path="/about" element={<AboutPage />} />
               <Route path="/login" element={<LoginPage />} />
+
+              {/* About Page with Footer */}
+              <Route
+                path="/about"
+                element={
+                  <>
+                    <AboutPage />
+                    <Footer />
+                  </>
+                }
+              />
 
               {/* General Dashboard */}
               <Route path="/dashboard" element={<DashboardPage />} />
@@ -77,7 +87,6 @@ function App() {
               />
             </Routes>
           </main>
-          <Footer />
         </div>
       </Router>
     </AuthProvider>
