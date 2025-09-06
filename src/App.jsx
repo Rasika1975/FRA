@@ -14,11 +14,11 @@ import PublicDashboard from './pages/PublicDashboard';
 import MapPage from './pages/MapPage';
 import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
-<<<<<<< HEAD
+
 
 import ProtectedRoute from './components/ProtectedRoute';
 
-=======
+
 import Navbar from './components/Navbar';
 import LayersPage from "./pages/LayersPage";
 import ClaimsPage from "./pages/ClaimsPage";
@@ -26,7 +26,7 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import ReportsPage from "./pages/ReportsPage";
 
 
-import ProtectedRoute from './components/ProtectedRoute';
+
 
 // Main Content Component that uses sidebar context
 const MainContent = () => {
@@ -102,7 +102,7 @@ const MainContent = () => {
   );
 };
 
->>>>>>> 0414533b4efe94a1455864b817cc7f8d4e6ffa4f
+
 function App() {
   return (
     <AuthProvider>
