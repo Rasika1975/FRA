@@ -19,7 +19,7 @@ import LayersPage from "./pages/LayersPage";
 import ClaimsPage from "./pages/ClaimsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import ReportsPage from "./pages/ReportsPage";
-
+import ProtectedRoute from './components/ProtectedRoute'; 
 
 
 const MainContent = () => {
