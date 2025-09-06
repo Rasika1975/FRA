@@ -15,6 +15,11 @@ import MapPage from './pages/MapPage';
 import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import Navbar from './components/Navbar';
+import LayersPage from "./pages/LayersPage";
+import ClaimsPage from "./pages/ClaimsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
+import ReportsPage from "./pages/ReportsPage";
+
 
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -36,6 +41,10 @@ const MainContent = () => {
           <Route path="/map" element={<MapPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/layers" element={<LayersPage />} />
+           <Route path="/claims" element={<ClaimsPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+             <Route path="/reports" element={<ReportsPage />} />
 
           {/* General Dashboard */}
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -83,7 +92,7 @@ const MainContent = () => {
           />
         </Routes>
       </main>
-      <Footer />
+      
     </div>
   );
 };

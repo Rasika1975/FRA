@@ -9,6 +9,9 @@ import {
   User,
   Menu,
   X,
+  Layers,
+  FileText,
+  PieChart,
 } from "lucide-react";
 import { useAuth } from "/src/hooks/useAuth.js";
 import { useSidebar } from "/src/context/SidebarContext.jsx";
@@ -21,6 +24,10 @@ const Sidebar = () => {
   const navItems = [
     { name: "Dashboard", path: "/", icon: BarChart3 },
     { name: "FRA Atlas", path: "/map", icon: MapPin },
+    { name: "Layers", path: "/layers", icon: Layers },
+    { name: "Claims", path: "/claims", icon: FileText },
+    { name: "Analytics", path: "/analytics", icon: PieChart },
+    { name: "Reports", path: "/reports", icon: FileText },
     { name: "About", path: "/about", icon: Info },
   ];
 
@@ -61,9 +68,7 @@ const Sidebar = () => {
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-lg text-gray-900">FRA Atlas</span>
-                <span className="text-xs text-gray-500">
-                  Forest Rights Monitoring
-                </span>
+                <span className="text-xs text-gray-500">Forest Rights Monitoring</span>
               </div>
             </Link>
           ) : (
@@ -104,7 +109,6 @@ const Sidebar = () => {
                       : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
                   }`}
               >
-                {/* Active border indicator */}
                 {isActive(item.path) && (
                   <span className="absolute left-0 top-0 h-full w-1 bg-emerald-600 rounded-r-md"></span>
                 )}
