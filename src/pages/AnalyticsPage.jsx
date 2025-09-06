@@ -1,147 +1,234 @@
-import React, { useState } from "react";
-import { PieChart, BarChart, LineChart, TrendingUp, TrendingDown, Filter, Calendar, MapPin, FileText, CheckCircle, Clock } from 'lucide-react';
+import React, { useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card'
+import { 
+  PieChart, 
+  Pie, 
+  Cell, 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Legend
+} from 'recharts'
+import { 
+  Filter,
+  Download,
+  CalendarDays,
+  ArrowUpDown
+} from 'lucide-react'
 
-// A simplified chart component for demonstration purposes
-const InteractiveChart = ({ title, type, data }) => {
-  // In a real app, this would use a library like Recharts, Chart.js, or D3
-  const chartColors = ["bg-emerald-500", "bg-blue-500", "bg-orange-500", "bg-purple-500", "bg-red-500"];
-
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-full flex flex-col">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">{title}</h3>
-      <div className="flex-grow flex items-center justify-center">
-        <div className="w-full h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-          <p className="text-gray-500">
-            {type === 'pie' && <PieChart className="w-16 h-16 text-gray-300" />}
-            {type === 'bar' && <BarChart className="w-16 h-16 text-gray-300" />}
-            {type === 'line' && <LineChart className="w-16 h-16 text-gray-300" />}
-            <span className="mt-2 block text-sm">Chart for "{title}"</span>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// A simplified animated card for stats
-const AnimatedCard = ({ title, value, change, trend, icon: Icon, color }) => (
-  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow duration-300">
-    <div className="flex items-center justify-between">
-      <p className="text-sm font-medium text-gray-500">{title}</p>
-      <div className={`p-2 rounded-lg ${color.replace('from-', 'bg-').split(' ')[0].replace('to-', '')} bg-opacity-10`}>
-        <Icon className={`w-6 h-6 ${color.replace('from-', 'text-').split(' ')[0].replace('to-', '')}`} />
-      </div>
-    </div>
-    <p className="text-3xl font-bold text-gray-800 mt-2">{value}</p>
-    <div className="flex items-center text-sm mt-2">
-      <span className={`flex items-center mr-2 ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-        {trend === 'up' ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
-        {change}
-      </span>
-      <span className="text-gray-500">vs. previous period</span>
-    </div>
-  </div>
-);
+// Mock UI components since they are not provided in the context.
+// You can replace these with your actual components from `../components/ui/*`.
+const Button = ({ children, className, ...props }) => <button className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 px-4 py-2 ${className}`} {...props}>{children}</button>
+const Input = ({ className, ...props }) => <input className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
+const Select = ({ children, className, ...props }) => <select className={`flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props}>{children}</select>
 
 const AnalyticsPage = () => {
-  const [timeframe, setTimeframe] = useState('last_30_days');
-  const [district, setDistrict] = useState('all');
+  // State for filters
+  const [dateRange, setDateRange] = useState({ from: '2023-01-01', to: '2023-12-31' });
+  const [selectedDistrict, setSelectedDistrict] = useState('all');
+  const [selectedClaimType, setSelectedClaimType] = useState('all');
 
-  const stats = [
-    { title: "Total FRA Claims", value: "1,258", change: "+5.2%", trend: 'up', icon: FileText, color: 'text-blue-600' },
-    { title: "Approved Claims", value: "860", change: "+3.1%", trend: 'up', icon: CheckCircle, color: 'text-green-600' },
-    { title: "Pending Claims", value: "340", change: "-1.5%", trend: 'down', icon: Clock, color: 'text-orange-600' },
-    { title: "Approval Rate", value: "68.4%", change: "+1.2%", trend: 'up', icon: PieChart, color: 'text-purple-600' },
-  ];
-
-  const claimsByTypeData = [
-    { name: 'IFR', value: 750 },
-    { name: 'CFR', value: 508 },
-  ];
-
+  // Mock data for charts
   const claimsOverTimeData = [
-    { name: 'Jan', value: 80 },
-    { name: 'Feb', value: 120 },
-    { name: 'Mar', value: 95 },
-    { name: 'Apr', value: 150 },
-    { name: 'May', value: 130 },
-    { name: 'Jun', value: 180 },
-  ];
+    { month: 'Jan', submitted: 40, approved: 24, rejected: 8 },
+    { month: 'Feb', submitted: 30, approved: 13, rejected: 5 },
+    { month: 'Mar', submitted: 50, approved: 38, rejected: 10 },
+    { month: 'Apr', submitted: 47, approved: 39, rejected: 4 },
+    { month: 'May', submitted: 59, approved: 48, rejected: 7 },
+    { month: 'Jun', submitted: 44, approved: 33, rejected: 6 },
+  ]
 
-  const claimsByStatusData = [
-    { name: 'Approved', value: 860 },
-    { name: 'Pending', value: 340 },
-    { name: 'Rejected', value: 58 },
-  ];
+  const districtStatusData = [
+    { district: 'Bastar', approved: 85, pending: 25, rejected: 10 },
+    { district: 'Dantewada', approved: 70, pending: 15, rejected: 10 },
+    { district: 'Kanker', approved: 60, pending: 10, rejected: 10 },
+    { district: 'Kondagaon', approved: 55, pending: 12, rejected: 8 },
+    { district: 'Narayanpur', approved: 45, pending: 8, rejected: 7 },
+  ]
+
+  const detailedClaimsData = [
+    { id: 'FRA001', holder: 'Ram Singh', district: 'Bastar', type: 'IFR', status: 'Approved', submitted: '2023-01-15', approved: '2023-02-20' },
+    { id: 'FRA002', holder: 'Sita Devi', district: 'Dantewada', type: 'CFR', status: 'Pending', submitted: '2023-02-10', approved: '-' },
+    { id: 'FRA003', holder: 'Gopal Yadav', district: 'Kanker', type: 'IFR', status: 'Rejected', submitted: '2023-03-05', approved: '-' },
+    { id: 'FRA004', holder: 'Maya Bai', district: 'Kondagaon', type: 'IFR', status: 'Approved', submitted: '2023-03-20', approved: '2023-04-25' },
+    { id: 'FRA005', holder: 'Kumar Singh', district: 'Narayanpur', type: 'CR', status: 'Under Review', submitted: '2023-04-01', approved: '-' },
+    { id: 'FRA006', holder: 'Laxmi Netam', district: 'Bastar', type: 'CFR', status: 'Approved', submitted: '2023-04-12', approved: '2023-05-18' },
+    { id: 'FRA007', holder: 'Ravi Kashyap', district: 'Dantewada', type: 'IFR', status: 'Pending', submitted: '2023-05-02', approved: '-' },
+  ]
 
   return (
-    <div className="p-6 bg-gray-50 min-h-full">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <select
-              value={timeframe}
-              onChange={(e) => setTimeframe(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 appearance-none bg-white text-sm"
-            >
-              <option value="last_7_days">Last 7 Days</option>
-              <option value="last_30_days">Last 30 Days</option>
-              <option value="last_90_days">Last 90 Days</option>
-              <option value="all_time">All Time</option>
-            </select>
-          </div>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <select
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 appearance-none bg-white text-sm"
-            >
-              <option value="all">All Districts</option>
-              <option value="balaghat">Balaghat</option>
-              <option value="khargone">Khargone</option>
-              <option value="dantewada">Dantewada</option>
-            </select>
-          </div>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">FRA Analytics</h1>
+        <p className="text-gray-600">In-depth analysis of Forest Rights Act claims data.</p>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, i) => (
-          <AnimatedCard key={i} {...stat} />
-        ))}
-      </div>
+      {/* Filters Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Filter className="h-5 w-5 mr-2" />
+            Filters
+          </CardTitle>
+          <CardDescription>Refine the data shown in the charts and table below.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Date Range */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Date Range</label>
+              <div className="flex items-center space-x-2">
+                <div className="relative flex-1">
+                  <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                  <Input type="date" value={dateRange.from} onChange={e => setDateRange(d => ({...d, from: e.target.value}))} className="pl-10" />
+                </div>
+                <span>-</span>
+                <div className="relative flex-1">
+                  <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                  <Input type="date" value={dateRange.to} onChange={e => setDateRange(d => ({...d, to: e.target.value}))} className="pl-10" />
+                </div>
+              </div>
+            </div>
+            {/* District */}
+            <div className="space-y-2">
+              <label htmlFor="district-filter" className="text-sm font-medium">District</label>
+              <Select id="district-filter" value={selectedDistrict} onChange={e => setSelectedDistrict(e.target.value)}>
+                <option value="all">All Districts</option>
+                <option value="Bastar">Bastar</option>
+                <option value="Dantewada">Dantewada</option>
+                <option value="Kanker">Kanker</option>
+                <option value="Kondagaon">Kondagaon</option>
+                <option value="Narayanpur">Narayanpur</option>
+              </Select>
+            </div>
+            {/* Claim Type */}
+            <div className="space-y-2">
+              <label htmlFor="claim-type-filter" className="text-sm font-medium">Claim Type</label>
+              <Select id="claim-type-filter" value={selectedClaimType} onChange={e => setSelectedClaimType(e.target.value)}>
+                <option value="all">All Types</option>
+                <option value="IFR">Individual Forest Rights (IFR)</option>
+                <option value="CFR">Community Forest Rights (CFR)</option>
+                <option value="CR">Community Rights (CR)</option>
+              </Select>
+            </div>
+            {/* Action Buttons */}
+            <div className="flex items-end space-x-2">
+              <Button className="bg-blue-600 text-white hover:bg-blue-700 w-full">Apply Filters</Button>
+              <Button variant="outline" className="w-full border-gray-300">Reset</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Charts */}
+      {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="lg:col-span-2">
-          <InteractiveChart
-            title="Claims Over Time"
-            type="line"
-            data={claimsOverTimeData}
-          />
-        </div>
-        <div>
-          <InteractiveChart
-            title="Claims by Type"
-            type="bar"
-            data={claimsByTypeData}
-          />
-        </div>
-        <div>
-          <InteractiveChart
-            title="Claims by Status"
-            type="pie"
-            data={claimsByStatusData}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+        {/* Claims Over Time */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Claims Over Time</CardTitle>
+            <CardDescription>Monthly trend of submitted, approved, and rejected claims.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={claimsOverTimeData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="submitted" stroke="#3B82F6" name="Submitted" />
+                <Line type="monotone" dataKey="approved" stroke="#10B981" name="Approved" />
+                <Line type="monotone" dataKey="rejected" stroke="#EF4444" name="Rejected" />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
-export default AnalyticsPage;
+        {/* District Status Breakdown */}
+        <Card>
+          <CardHeader>
+            <CardTitle>District Status Breakdown</CardTitle>
+            <CardDescription>Distribution of claim statuses across districts.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={districtStatusData} layout="vertical" margin={{ left: 10, right: 30 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis dataKey="district" type="category" width={80} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="approved" stackId="a" fill="#10B981" name="Approved" />
+                <Bar dataKey="pending" stackId="a" fill="#F59E0B" name="Pending" />
+                <Bar dataKey="rejected" stackId="a" fill="#EF4444" name="Rejected" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Data Table */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Detailed Claims Data</CardTitle>
+            <CardDescription>Browse, sort, and filter all claims in the system.</CardDescription>
+          </div>
+          <Button variant="outline" className="border-gray-300">
+            <Download className="h-4 w-4 mr-2" />
+            Export to CSV
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="border rounded-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {['Claim ID', 'Holder Name', 'District', 'Type', 'Status', 'Submitted', 'Approved'].map(header => (
+                    <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <div className="flex items-center">
+                        {header}
+                        <ArrowUpDown className="h-3 w-3 ml-1.5 text-gray-400" />
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {detailedClaimsData.map((claim) => (
+                  <tr key={claim.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{claim.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{claim.holder}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{claim.district}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{claim.type}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        claim.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                        claim.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                        claim.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {claim.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{claim.submitted}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{claim.approved}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default AnalyticsPage
