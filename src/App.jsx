@@ -14,12 +14,13 @@ import PublicDashboard from './pages/PublicDashboard';
 import MapPage from './pages/MapPage';
 import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
+import Navbar from './components/Navbar';
 import LayersPage from "./pages/LayersPage";
 import ClaimsPage from "./pages/ClaimsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import ReportsPage from "./pages/ReportsPage";
+import ProtectedRoute from './components/ProtectedRoute'; 
 
-import ProtectedRoute from './components/ProtectedRoute';
 
 const MainContent = () => {
   return (
