@@ -63,17 +63,17 @@ const AnalyticsPage = () => {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">FRA Analytics</h1>
+        <h1 className="text-2xl font-bold text-gray-900">FRA Analytics</h1>
         <p className="text-gray-600">In-depth analysis of Forest Rights Act claims data.</p>
       </div>
 
       {/* Filters Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
+          <CardTitle className="flex items-center text-lg">
             <Filter className="h-5 w-5 mr-2" />
             Filters
           </CardTitle>
@@ -132,7 +132,7 @@ const AnalyticsPage = () => {
         {/* Claims Over Time */}
         <Card>
           <CardHeader>
-            <CardTitle>Claims Over Time</CardTitle>
+            <CardTitle className="text-lg">Claims Over Time</CardTitle>
             <CardDescription>Monthly trend of submitted, approved, and rejected claims.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -154,7 +154,7 @@ const AnalyticsPage = () => {
         {/* District Status Breakdown */}
         <Card>
           <CardHeader>
-            <CardTitle>District Status Breakdown</CardTitle>
+            <CardTitle className="text-lg">District Status Breakdown</CardTitle>
             <CardDescription>Distribution of claim statuses across districts.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -178,7 +178,7 @@ const AnalyticsPage = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Detailed Claims Data</CardTitle>
+            <CardTitle className="text-lg">Detailed Claims Data</CardTitle>
             <CardDescription>Browse, sort, and filter all claims in the system.</CardDescription>
           </div>
           <Button variant="outline" className="border-gray-300">
@@ -192,7 +192,7 @@ const AnalyticsPage = () => {
               <thead className="bg-gray-50">
                 <tr>
                   {['Claim ID', 'Holder Name', 'District', 'Type', 'Status', 'Submitted', 'Approved'].map(header => (
-                    <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th key={header} scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                       <div className="flex items-center">
                         {header}
                         <ArrowUpDown className="h-3 w-3 ml-1.5 text-gray-400" />
