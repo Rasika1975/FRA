@@ -51,11 +51,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# MongoDB connection
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/AIML")
-client = pymongo.MongoClient(MONGO_URI)
-db = client.fra_documents
-collection = db.processed_documents
+# MongoDB connection setup
+MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    MONGO_URI = "mongodb://localhost:27017/fra_documents"
+
+try:
+    # Initialize MongoDB client with timeout and retry options
+    client = pymongo.MongoClient(
+        MONGO_URI,
+        serverSelectionTimeoutMS=5000,
+        connectTimeoutMS=5000,
+        retryWrites=True
+    )
+    
+    # Test connection
+    client.admin.command('ping')
+    print("Successfully connected to MongoDB")
+    
+    # Initialize database and collection
+    db = client.fra_documents
+    collection = db.processed_documents
+
+except Exception as e:
+    print(f"Failed to connect to MongoDB: {str(e)}")
+    raise HTTPException(
+        status_code=500,
+        detail="Database connection failed. Please ensure MongoDB is running."
+    )
 
 # Global variables for models
 ocr_reader = None
