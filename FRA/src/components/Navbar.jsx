@@ -31,14 +31,14 @@ const Navbar = () => {
         {/* Left Section */}
         <div className="flex items-center space-x-2">
           <div className="w-7 h-7 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center">
-            <FiHeart className="text-white text-xs" />
+         {/* <MapPin className="w-5 h-5 text-white" /> */}
           </div>
           <div>
             <h1 className="text-lg font-semibold text-gray-900">
               Welcome back, {userStats.name}!
             </h1>
             <p className="text-xs text-gray-500">
-              Here's your mental health overview
+              Welcome back! You've completed {userStats.sessionsCompleted} sessions
             </p>
           </div>
         </div>

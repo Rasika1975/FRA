@@ -120,10 +120,13 @@ function Upload() {
       {/* Result */}
       {result && (
         <div className="mt-6 bg-gray-100 p-4 rounded-lg shadow">
-          <h3 className="font-semibold mb-3 text-lg">📑 Extracted Info</h3>
+          <h3 className="font-semibold mb-3 text-lg"> Extracted Info</h3>
           <ul className="space-y-1 text-sm">
+            <li><b>Name:</b> {result.fra_fields?.name || "N/A"}</li>
+            <li><b>Father Name:</b> {result.fra_fields?.father_name || "N/A"}</li>
             <li><b>Claimant Name:</b> {result.fra_fields?.claimant_name || "N/A"}</li>
             <li><b>Village:</b> {result.fra_fields?.village || "N/A"}</li>
+            <li><b>State:</b> {result.fra_fields?.state || "N/A"}</li>
             <li><b>Area:</b> {result.fra_fields?.area || "N/A"} {result.fra_fields?.area_units || ""}</li>
             <li><b>Status:</b> {result.fra_fields?.claim_status || "N/A"}</li>
             <li><b>Text Excerpt:</b> {result.text_excerpt || "N/A"}</li>

@@ -57,22 +57,16 @@ if not MONGO_URI:
     MONGO_URI = "mongodb://localhost:27017/fra_documents"
 
 try:
-    # Initialize MongoDB client with timeout and retry options
     client = pymongo.MongoClient(
         MONGO_URI,
         serverSelectionTimeoutMS=5000,
         connectTimeoutMS=5000,
         retryWrites=True
     )
-    
-    # Test connection
     client.admin.command('ping')
     print("Successfully connected to MongoDB")
-    
-    # Initialize database and collection
     db = client.fra_documents
     collection = db.processed_documents
-
 except Exception as e:
     print(f"Failed to connect to MongoDB: {str(e)}")
     raise HTTPException(
@@ -85,11 +79,15 @@ ocr_reader = None
 ner_pipeline = None
 
 class FRAFields(BaseModel):
+    name: Optional[str] = None
+    father_name: Optional[str] = None
     claimant_name: Optional[str] = None
+    state: Optional[str] = None
     village: Optional[str] = None
     area: Optional[str] = None
     area_units: Optional[str] = None
     claim_status: Optional[str] = None
+
 
 class ProcessingResponse(BaseModel):
     success: bool
@@ -108,11 +106,9 @@ def initialize_models():
     global ocr_reader, ner_pipeline
     
     try:
-        # Initialize EasyOCR for Hindi and English
         print("Loading EasyOCR model...")
         ocr_reader = easyocr.Reader(['hi', 'en'], gpu=torch.cuda.is_available())
         
-        # Initialize IndicNER model
         print("Loading IndicNER model...")
         model_name = "ai4bharat/IndicNER"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -128,16 +124,9 @@ def initialize_models():
 def extract_text_from_image(file_content: bytes) -> str:
     """Extract text from image using EasyOCR"""
     try:
-        # Convert bytes to PIL Image
         image = Image.open(io.BytesIO(file_content))
-        
-        # Convert PIL Image to a NumPy array
         image_np = np.array(image)
-        
-        # Perform OCR on the NumPy array
         results = ocr_reader.readtext(image_np)
-        
-        # Combine all text
         text = " ".join([result[1] for result in results])
         return text
     except Exception as e:
@@ -152,96 +141,87 @@ def extract_entities(text: str) -> Dict[str, Any]:
         print(f"NER processing failed: {e}")
         return []
 
+# --- Text Cleaner ---
+def clean_text(text: str) -> str:
+    """Normalize OCR text before regex extraction"""
+    text = re.sub(r"\bs name\b", "father name", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bname:\s*name\b", "name:", text, flags=re.IGNORECASE)
+    return text
+
 def extract_fra_fields(text: str, entities: list) -> FRAFields:
-    """Extract FRA-specific fields from text and entities"""
     fra_fields = FRAFields()
-    
-    # Convert text to lowercase for pattern matching
-    text_lower = text.lower()
-    
+
+    # Clean OCR text
+    text_clean = clean_text(text)
+    text_lower = text_clean.lower()
+
+    NAME_REGEX = r'([A-Za-z\u0900-\u097F]+(?:\s+[A-Za-z\u0900-\u097F]+){0,2})'
+
     # Extract Claimant Name
-    # Look for patterns like "Name:", "नाम:", "Applicant:", etc.
     name_patterns = [
-        r'(?:name|नाम|applicant|आवेदक|claimant|दावेदार)[\s:]*([^\n\r,]+)',
-        r'(?:name|नाम)[\s:]*([A-Za-z\u0900-\u097F\s]+)',
+        rf'(?:claimant name|name|नाम|applicant|आवेदक|दावेदार)[:\s]*{NAME_REGEX}',
     ]
-    
     for pattern in name_patterns:
-        match = re.search(pattern, text_lower, re.IGNORECASE)
-        if match:
-            fra_fields.claimant_name = match.group(1).strip()
+        match = re.search(pattern, text_clean, re.IGNORECASE)
+        if match and match.group(1).lower() not in ["name", "s name"]:
+            fra_fields.name = match.group(1).strip()
+            fra_fields.claimant_name = fra_fields.name
             break
-    
+
+    # Extract Father Name
+    father_patterns = [
+        rf'(?:father name|पिता का नाम)[:\s]*{NAME_REGEX}',
+    ]
+    for pattern in father_patterns:
+        match = re.search(pattern, text_clean, re.IGNORECASE)
+        if match and match.group(1).lower() not in ["name", "s name"]:
+            fra_fields.father_name = match.group(1).strip()
+            break
+
     # Extract Village
     village_patterns = [
-        r'(?:village|गाँव|ग्राम|village name|ग्राम का नाम)[\s:]*([^\n\r,]+)',
-        r'(?:village|गाँव|ग्राम)[\s:]*([A-Za-z\u0900-\u097F\s]+)',
+        rf'(?:village|गाँव|ग्राम|village name|ग्राम का नाम)[:\s]*{NAME_REGEX}',
     ]
-    
     for pattern in village_patterns:
-        match = re.search(pattern, text_lower, re.IGNORECASE)
+        match = re.search(pattern, text_clean, re.IGNORECASE)
         if match:
             fra_fields.village = match.group(1).strip()
             break
-    
-    # Extract Area and Units
+
+    # Extract Area
     area_patterns = [
-        r'(?:area|क्षेत्रफल|जमीन|land)[\s:]*([0-9.,\s]+)\s*(hectare|acre|हेक्टेयर|एकड़|sq\.?\s*m|sq\.?\s*ft)',
-        r'([0-9.,\s]+)\s*(hectare|acre|हेक्टेयर|एकड़|sq\.?\s*m|sq\.?\s*ft)',
+        r'([0-9.,\s]+)\s*(hectare|acre|हेक्टेयर|एकड़)',
     ]
-    
     for pattern in area_patterns:
-        match = re.search(pattern, text_lower, re.IGNORECASE)
+        match = re.search(pattern, text_clean, re.IGNORECASE)
         if match:
             fra_fields.area = match.group(1).strip()
             fra_fields.area_units = match.group(2).strip()
             break
-    
+
     # Extract Claim Status
-    status_patterns = [
-        r'(?:status|स्थिति|claim status|दावा स्थिति)[\s:]*([^\n\r,]+)',
-        r'(?:approved|स्वीकृत|rejected|अस्वीकृत|pending|लंबित)',
-    ]
-    
-    for pattern in status_patterns:
-        match = re.search(pattern, text_lower, re.IGNORECASE)
-        if match:
-            status_text = match.group(1) if len(match.groups()) > 0 else match.group(0)
-            if any(word in status_text.lower() for word in ['approved', 'स्वीकृत', 'accepted']):
-                fra_fields.claim_status = 'approved'
-            elif any(word in status_text.lower() for word in ['rejected', 'अस्वीकृत', 'denied']):
-                fra_fields.claim_status = 'rejected'
-            elif any(word in status_text.lower() for word in ['pending', 'लंबित', 'under review']):
-                fra_fields.claim_status = 'pending'
-            break
-    
-    # If no status found, try to infer from context
-    if not fra_fields.claim_status:
-        if any(word in text_lower for word in ['approved', 'स्वीकृत', 'accepted']):
-            fra_fields.claim_status = 'approved'
-        elif any(word in text_lower for word in ['rejected', 'अस्वीकृत', 'denied']):
-            fra_fields.claim_status = 'rejected'
-        elif any(word in text_lower for word in ['pending', 'लंबित', 'under review']):
-            fra_fields.claim_status = 'pending'
-    
+    if "approved" in text_lower or "स्वीकृत" in text_lower:
+        fra_fields.claim_status = "approved"
+    elif "rejected" in text_lower or "अस्वीकृत" in text_lower:
+        fra_fields.claim_status = "rejected"
+    elif "pending" in text_lower or "लंबित" in text_lower:
+        fra_fields.claim_status = "pending"
+
     return fra_fields
 
 def get_text_excerpt(text: str, max_length: int = 200) -> str:
-    """Get a short excerpt from the text"""
     if len(text) <= max_length:
         return text
     return text[:max_length] + "..."
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize models on startup"""
     success = initialize_models()
     if not success:
         print("Warning: Some models failed to load. API may not function properly.")
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
-    """Health check endpoint"""
     return HealthResponse(
         status="healthy" if ocr_reader and ner_pipeline else "degraded",
         timestamp=datetime.now().isoformat(),
@@ -250,23 +230,15 @@ async def health_check():
 
 @app.post("/upload", response_model=ProcessingResponse)
 async def upload_file(file: UploadFile = File(...)):
-    """Upload and process PDF or image file"""
-    
-    # Check if models are loaded
     if not ocr_reader or not ner_pipeline:
         raise HTTPException(status_code=503, detail="Models not loaded. Please try again later.")
     
-    # Validate file type
     if not file.content_type.startswith(('image/', 'application/pdf')):
         raise HTTPException(status_code=400, detail="File must be an image or PDF")
     
     try:
-        # Read file content
         file_content = await file.read()
-        
-        # For now, we'll only handle images. PDF support would require additional libraries like PyPDF2
         if file.content_type.startswith('image/'):
-            # Extract text using OCR
             text = extract_text_from_image(file_content)
         else:
             raise HTTPException(status_code=400, detail="PDF support not implemented yet. Please upload an image file.")
@@ -274,13 +246,9 @@ async def upload_file(file: UploadFile = File(...)):
         if not text.strip():
             raise HTTPException(status_code=400, detail="No text found in the uploaded file")
         
-        # Extract entities using NER
         entities = extract_entities(text)
-        
-        # Extract FRA-specific fields
         fra_fields = extract_fra_fields(text, entities)
         
-        # Create document record
         document_record = {
             "filename": file.filename,
             "content_type": file.content_type,
@@ -291,7 +259,6 @@ async def upload_file(file: UploadFile = File(...)):
             "text_excerpt": get_text_excerpt(text)
         }
         
-        # Store in MongoDB
         result = collection.insert_one(to_bson_safe(document_record))
         document_id = str(result.inserted_id)
         
@@ -302,7 +269,6 @@ async def upload_file(file: UploadFile = File(...)):
             full_text=text,
             document_id=document_id
         )
-        
     except HTTPException:
         raise
     except Exception as e:
@@ -310,7 +276,6 @@ async def upload_file(file: UploadFile = File(...)):
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
     return {"message": "FRA Document Processing API", "version": "1.0.0"}
 
 if __name__ == "__main__":
