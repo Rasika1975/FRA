@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../context/AuthContext'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card.jsx'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card'
 import { Map, Shield, Users, Eye } from 'lucide-react'
 
 const LoginPage = () => {
-  const navigate = useNavigate()
   const { login } = useAuth()
   const [formData, setFormData] = useState({
     username: '',
@@ -25,7 +23,7 @@ const LoginPage = () => {
     const result = login(formData.username, formData.password)
     
     if (result.success) {
-      navigate('/dashboard') // Login safal hone par dashboard par redirect karein
+      // Redirect will be handled by Layout component
     } else {
       setError(result.error)
     }
@@ -143,7 +141,7 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage
