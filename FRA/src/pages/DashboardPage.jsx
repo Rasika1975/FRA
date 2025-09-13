@@ -64,10 +64,14 @@ const DashboardPage = () => {
   ]
 
   return (
+<<<<<<< HEAD:FRA/src/pages/DashboardPage.jsx
     <div className="space-y-6 px-4 lg:px-8 pt-5"> {/* <-- Added horizontal padding here */}
+=======
+    <div className="p-6 space-y-6">
+>>>>>>> 8a188390f6d4c69d006e04f620b107766c2aec63:src/pages/DashboardPage.jsx
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600">Overview of FRA claims and system performance</p>
       </div>
 
@@ -95,7 +99,7 @@ const DashboardPage = () => {
         {/* Claims Status Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>Claims Status Distribution</CardTitle>
+            <CardTitle className="text-lg">Claims Status Distribution</CardTitle>
             <CardDescription>Current status of all FRA claims</CardDescription>
           </CardHeader>
           <CardContent>
@@ -124,7 +128,7 @@ const DashboardPage = () => {
         {/* Progress Trend */}
         <Card>
           <CardHeader>
-            <CardTitle>Progress Trend Over Years</CardTitle>
+            <CardTitle className="text-lg">Progress Trend Over Years</CardTitle>
             <CardDescription>Claims submitted and approved over time</CardDescription>
           </CardHeader>
           <CardContent>
@@ -159,7 +163,7 @@ const DashboardPage = () => {
         {/* District-wise Claims */}
         <Card>
           <CardHeader>
-            <CardTitle>District-wise Claims</CardTitle>
+            <CardTitle className="text-lg">District-wise Claims</CardTitle>
             <CardDescription>Claims distribution across districts</CardDescription>
           </CardHeader>
           <CardContent>
@@ -179,7 +183,7 @@ const DashboardPage = () => {
         {/* Recent Activity */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle className="text-lg">Recent Activity</CardTitle>
             <CardDescription>Latest updates in the system</CardDescription>
           </CardHeader>
           <CardContent>
