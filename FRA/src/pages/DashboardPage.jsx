@@ -19,10 +19,7 @@ import {
   CheckCircle, 
   Clock, 
   XCircle, 
-  Scan,
-  TrendingUp,
-  Users,
-  MapPin
+  Scan
 } from 'lucide-react'
 
 const DashboardPage = () => {
@@ -67,7 +64,7 @@ const DashboardPage = () => {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 lg:px-8 pt-5"> {/* <-- Added horizontal padding here */}
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>

@@ -60,7 +60,7 @@ const Sidebar = () => {
         ${isMobileOpen ? "translate-x-0" : "lg:translate-x-0 -translate-x-full"}`}
       >
         {/* Header */}
-        <div className="p-3 border-b border-gray-200 flex items-center justify-between">
+        <div className="p-3 flex items-center justify-between">
           {!isCollapsed ? (
             <Link to="/" className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center shadow-md hover:scale-110 transition-transform duration-300">
@@ -68,9 +68,7 @@ const Sidebar = () => {
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-lg text-gray-900">FRA Atlas</span>
-                <span className="text-xs text-gray-500">
-                  Forest Rights Monitoring
-                </span>
+               
               </div>
             </Link>
             
