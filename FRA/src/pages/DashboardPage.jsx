@@ -64,11 +64,11 @@ const DashboardPage = () => {
   ]
 
   return (
-<<<<<<< HEAD:FRA/src/pages/DashboardPage.jsx
+
     <div className="space-y-6 px-4 lg:px-8 pt-5"> {/* <-- Added horizontal padding here */}
-=======
+
     <div className="p-6 space-y-6">
->>>>>>> 8a188390f6d4c69d006e04f620b107766c2aec63:src/pages/DashboardPage.jsx
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -209,7 +209,8 @@ const DashboardPage = () => {
         </Card>
       </div>
     </div>
+    </div>
   )
 }
 
-export default DashboardPage
+export default DashboardPage ;
